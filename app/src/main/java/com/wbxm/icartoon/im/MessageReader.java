@@ -1,8 +1,8 @@
 package com.wbxm.icartoon.im;
 
-import com.wbxm.icartoon.im.model.Message;
 import com.wbxm.icartoon.im.listener.IMessageHandler;
 import com.wbxm.icartoon.im.listener.IMessageReceiver;
+import com.wbxm.icartoon.im.model.Message;
 import com.wbxm.icartoon.im.util.Constant;
 import com.wbxm.icartoon.im.util.MessageFactory;
 import com.wbxm.icartoon.im.util.ThreadUtil;
@@ -20,12 +20,16 @@ import java.util.concurrent.DelayQueue;
  */
 public class MessageReader implements IMessageReceiver {
 
+    /**
+     * 记录从服务器获取到的所有消息id，根据id去重
+     */
     private Set<Integer> ids = Collections.synchronizedSet(new HashSet<Integer>());
+
     private DelayQueue<DelayTask<Message>> readQueue = new DelayQueue<>();
 
     private volatile boolean isConnecting = false;
 
-    private IMessageHandler listener;
+    private IMessageHandler listener; // 客户端接收服务器消息监听器
 
     public void setMessageHandler(IMessageHandler listener) {
         this.listener = listener;

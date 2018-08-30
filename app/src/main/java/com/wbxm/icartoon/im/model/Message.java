@@ -16,11 +16,14 @@ import com.wbxm.icartoon.im.util.Constant;
 
 public class Message implements Comparable<Message> {
 
+    /**
+     * 消息类型
+     */
     public static class Type {
-        public static final String TEXT = "text";
-        public static final String IMAGE = "image";
-        public static final String AUDIO = "audio";
-        public static final String VIDEO = "video";
+        public static final String TEXT = "text";  //文本
+        public static final String IMAGE = "image"; //图片
+        public static final String AUDIO = "audio"; //音频
+        public static final String VIDEO = "video"; //视频
     }
 
     @JSONField(serialize = false)

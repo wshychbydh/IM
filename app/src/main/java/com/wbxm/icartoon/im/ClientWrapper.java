@@ -1,13 +1,13 @@
 package com.wbxm.icartoon.im;
 
-import com.wbxm.icartoon.im.model.Packet;
-import com.wbxm.icartoon.im.model.ServerParameter;
 import com.wbxm.icartoon.im.listener.IAuthListener;
 import com.wbxm.icartoon.im.listener.IConnectListener;
 import com.wbxm.icartoon.im.listener.IHeartListener;
 import com.wbxm.icartoon.im.listener.IMessageReceiver;
 import com.wbxm.icartoon.im.listener.IReconnectListener;
 import com.wbxm.icartoon.im.listener.IWriteListener;
+import com.wbxm.icartoon.im.model.Packet;
+import com.wbxm.icartoon.im.model.ServerParameter;
 
 import java.io.IOException;
 import java.util.Observable;
@@ -31,7 +31,9 @@ public final class ClientWrapper extends AbstractBlockingClient implements IWrit
         this.serverParameter = parameter;
     }
 
-
+    /**
+     * 连接状态监听，当重新连接的时候会收到通知
+     */
     private class Listener implements Observer {
         @Override
         public void update(Observable o, Object arg) {

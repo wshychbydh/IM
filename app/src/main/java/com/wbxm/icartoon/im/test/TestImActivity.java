@@ -22,15 +22,16 @@ import android.widget.Toast;
 
 import com.cool.eye.chart.R;
 import com.wbxm.icartoon.im.MessageClient;
-import com.wbxm.icartoon.im.model.Message;
-import com.wbxm.icartoon.im.model.MessageStatus;
-import com.wbxm.icartoon.im.model.RejectionCode;
 import com.wbxm.icartoon.im.listener.Callable;
+import com.wbxm.icartoon.im.listener.IConnectListener;
 import com.wbxm.icartoon.im.listener.IMessageHandler;
 import com.wbxm.icartoon.im.listener.ISendListener;
 import com.wbxm.icartoon.im.listener.IUploadExecutor;
 import com.wbxm.icartoon.im.listener.IUploadListener;
 import com.wbxm.icartoon.im.listener.RejectionDef;
+import com.wbxm.icartoon.im.model.Message;
+import com.wbxm.icartoon.im.model.MessageStatus;
+import com.wbxm.icartoon.im.model.RejectionCode;
 import com.wbxm.icartoon.im.util.Constant;
 import com.wbxm.icartoon.im.util.MessageFactory;
 import com.wbxm.icartoon.im.util.ThreadUtil;
@@ -40,24 +41,25 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * IM测试类
+ * 用两个手机安装相应的包（只需修改uid和token）。可以实现通信
+ *
  * @author ycb
  * @date 2018/8/27
  */
 public class TestImActivity extends AppCompatActivity implements ISendListener<Message>,
-        IMessageHandler, IUploadExecutor {
+        IMessageHandler, IUploadExecutor, IConnectListener {
 
     private static final int uid = 22222;
+    private int toUid = 11111;
     //uid=22222的token
-    private static final String token ="VYCU5WafEplIQNqtpIytxLf2zxpvcWpejij6p/Baw7f/tsGn/498fkxd4nQQHgWmZP5tLpCUecojc1Sl0B1o4mOv/ZE180U5NaQYjWlZ40EveG81RbkDtAnkyIEaGieXbeFNpfKcbI8/z7jRNofhIzeJqCFH/Tad6U0RMzLQPNI=";
+    private static final String token = "VYCU5WafEplIQNqtpIytxLf2zxpvcWpejij6p/Baw7f/tsGn/498fkxd4nQQHgWmZP5tLpCUecojc1Sl0B1o4mOv/ZE180U5NaQYjWlZ40EveG81RbkDtAnkyIEaGieXbeFNpfKcbI8/z7jRNofhIzeJqCFH/Tad6U0RMzLQPNI=";
     //uid=11111的token
     //private static final String token ="VYCU5WafEplIQNqtpIytxJXtaFW2+FjfDgH3PwX8WAH/tsGn/498fkxd4nQQHgWmZP5tLpCUecojc1Sl0B1o4mOv/ZE180U5NaQYjWlZ40EveG81RbkDtAnkyIEaGieXbeFNpfKcbI8/z7jRNofhIzeJqCFH/Tad6U0RMzLQPNI=";
-    private int toUid = 11111;
-    String MOCK_URL = "http://img.zcool.cn/community/0117e2571b8b246ac72538120dd8a4.jpg@1280w_1l_2o_100sh.jpg";
+
     MessageClient client;
 
     private EditText editText;
@@ -68,9 +70,9 @@ public class TestImActivity extends AppCompatActivity implements ISendListener<M
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_im);
-        editText = findViewById(R.id.et);
+        editText = (EditText) findViewById(R.id.et);
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
@@ -82,7 +84,7 @@ public class TestImActivity extends AppCompatActivity implements ISendListener<M
                 .build();
         client.setSendListener(this)
                 .setMessageHandler(this)
-              //  .setConnectListener(this)
+                .setConnectListener(this)
                 .setUploadExecutor(this);
         client.start();
     }
@@ -93,47 +95,38 @@ public class TestImActivity extends AppCompatActivity implements ISendListener<M
         client.stop();
     }
 
-//    @Override
-//    @WorkerThread
-//    public void connected() {
-//        ThreadUtil.runOnUi(new Runnable() {
-//            @Override
-//            public void run() {
-//                Toast.makeText(TestImActivity.this, "connect succeed", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//    }
-//
-//    @Override
-//    @WorkerThread
-//    public void disconnected() {
-//        ThreadUtil.runOnUi(new Runnable() {
-//            @Override
-//            public void run() {
-//                Toast.makeText(TestImActivity.this, "disconnected", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
+    @Override
+    @WorkerThread
+    public void connected() {
+        ThreadUtil.runOnUi(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(TestImActivity.this, "connect succeed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    @Override
+    @WorkerThread
+    public void disconnected() {
+        ThreadUtil.runOnUi(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(TestImActivity.this, "disconnected", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     @Override
     @WorkerThread
     public void handleMessage(@NonNull final Message message) {
-        // FIXME 返回来的数据不一定是有序的，需要根据seqId对其进行排序
-
-        ThreadUtil.asyncTask(new Callable<List<Message>>() {
+        // FIXME 返回来的数据不一定是有序的，需要根据message.id对其进行排序
+        // 排序的时候还需要考虑发送失败的数据，这些数据并没有message.id
+        ThreadUtil.runOnUi(new Runnable() {
             @Override
-            public List<Message> runAsync() {
-                List<Message> temp = new ArrayList<>(data);
-                temp.add(message);
-                Collections.sort(temp);
-                return temp;
-            }
-
-            @Override
-            public void runOnUi(List<Message> data) {
-                TestImActivity.this.data.clear();
-                TestImActivity.this.data.addAll(data);
+            public void run() {
+                data.add(message);
                 adapter.notifyDataSetChanged();
             }
         });
@@ -142,19 +135,11 @@ public class TestImActivity extends AppCompatActivity implements ISendListener<M
     @Override
     @WorkerThread
     public void onSendSucceed(Message message) {
-        //每条信息同步到服务器后，服务器会返回一个数据id(message.id)，用该id来排序。
-        ThreadUtil.asyncTask(new Callable<List<Message>>() {
+        //FIXME 每条信息同步到服务器后，服务器会返回一个数据id(message.id)，根据该id来排序。
+        // 排序的时候还需要考虑发送失败的数据，这些数据并没有message.id
+        ThreadUtil.runOnUi(new Runnable() {
             @Override
-            public List<Message> runAsync() {
-                List<Message> temp = new ArrayList<>(data);
-                Collections.sort(temp);
-                return temp;
-            }
-
-            @Override
-            public void runOnUi(List<Message> data) {
-                TestImActivity.this.data.clear();
-                TestImActivity.this.data.addAll(data);
+            public void run() {
                 adapter.notifyDataSetChanged();
             }
         });
@@ -184,11 +169,12 @@ public class TestImActivity extends AppCompatActivity implements ISendListener<M
 
     /**
      * 重新发送
+     *
      * @param message
      */
     public void resend(Message message) {
         message.setSyncStatus(MessageStatus.SYNCING);
-        adapter.notifyDataSetChanged();
+        adapter.notifyItemChanged(data.indexOf(message));
         client.sendMessage(message);
     }
 
@@ -217,7 +203,7 @@ public class TestImActivity extends AppCompatActivity implements ISendListener<M
 
     @Override
     public void uploadFile(final Message message, final IUploadListener listener) {
-        //TODO 上传文件，上传成功后将服务器url返回
+        //TODO 上传文件，上传成功后将文件在服务器存放的地址返回
         ThreadUtil.asyncTask(new Runnable() {
             @Override
             public void run() {
@@ -227,11 +213,11 @@ public class TestImActivity extends AppCompatActivity implements ISendListener<M
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                listener.onUploadSucceed(message, MOCK_URL);
+                String serverUrl = "http://img.zcool.cn/community/0117e2571b8b246ac72538120dd8a4.jpg@1280w_1l_2o_100sh.jpg";
+                listener.onUploadSucceed(message, serverUrl);
             }
         });
     }
-
 
     private class DataAdapter extends RecyclerView.Adapter<DataHolder> {
         @Override
@@ -256,6 +242,8 @@ public class TestImActivity extends AppCompatActivity implements ISendListener<M
                 case MessageStatus.FAILED:
                     holder.pb.setVisibility(View.GONE);
                     holder.failTv.setVisibility(View.VISIBLE);
+                    holder.failTv.setTag(message);
+                    holder.failTv.setOnClickListener(clickListener);
                     break;
                 case MessageStatus.SYNCING:
                     holder.pb.setVisibility(View.VISIBLE);
@@ -268,13 +256,20 @@ public class TestImActivity extends AppCompatActivity implements ISendListener<M
             }
         }
 
+        private View.OnClickListener clickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resend((Message) v.getTag());
+            }
+        };
+
         @Override
         public int getItemCount() {
             return data.size();
         }
 
         /**
-         * FIXME 使用图片加载框架代替
+         * FIXME 请使用图片框架代替,这里加载图片会有延迟、卡顿（请忽略）
          *
          * @param imgUrl
          * @param iv
@@ -326,10 +321,10 @@ public class TestImActivity extends AppCompatActivity implements ISendListener<M
 
         public DataHolder(View itemView) {
             super(itemView);
-            tv = itemView.findViewById(R.id.tv_item);
-            pb = itemView.findViewById(R.id.pb);
-            failTv = itemView.findViewById(R.id.failed);
-            iv = itemView.findViewById(R.id.iv_item);
+            tv = (TextView) itemView.findViewById(R.id.tv_item);
+            pb = (ProgressBar) itemView.findViewById(R.id.pb);
+            failTv = (TextView) itemView.findViewById(R.id.failed);
+            iv = (ImageView) itemView.findViewById(R.id.iv_item);
         }
     }
 }

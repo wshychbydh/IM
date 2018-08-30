@@ -14,6 +14,7 @@ import static com.wbxm.icartoon.im.model.MessageStatus.UN_SYNC;
 
 
 /**
+ * 消息状态约束
  * @author ycb
  * @date 2018/8/27
  */

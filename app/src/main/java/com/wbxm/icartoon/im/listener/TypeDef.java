@@ -13,6 +13,7 @@ import static com.wbxm.icartoon.im.model.Message.Type.TEXT;
 import static com.wbxm.icartoon.im.model.Message.Type.VIDEO;
 
 /**
+ * 消息类型约束
  * @author ycb
  * @date 2018/8/27
  */

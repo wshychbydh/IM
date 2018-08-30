@@ -13,6 +13,7 @@ import static com.wbxm.icartoon.im.model.RejectionCode.TEXT_PEAK;
 import static com.wbxm.icartoon.im.model.RejectionCode.UPLOAD_ERROR;
 
 /**
+ * 发送消息失败的错误码约束
  * @author ycb
  * @date 2018/8/27
  */

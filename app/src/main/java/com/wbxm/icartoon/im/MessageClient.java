@@ -2,8 +2,6 @@ package com.wbxm.icartoon.im;
 
 import android.text.TextUtils;
 
-import com.wbxm.icartoon.im.model.Message;
-import com.wbxm.icartoon.im.model.ServerParameter;
 import com.wbxm.icartoon.im.listener.IAuthListener;
 import com.wbxm.icartoon.im.listener.IConnectListener;
 import com.wbxm.icartoon.im.listener.IHeartListener;
@@ -12,10 +10,10 @@ import com.wbxm.icartoon.im.listener.IMessageReceiver;
 import com.wbxm.icartoon.im.listener.IReconnectListener;
 import com.wbxm.icartoon.im.listener.ISendListener;
 import com.wbxm.icartoon.im.listener.IUploadExecutor;
-import com.wbxm.icartoon.im.util.Constant;
+import com.wbxm.icartoon.im.model.Message;
 import com.wbxm.icartoon.im.model.OperationCode;
-
-import java.util.Observable;
+import com.wbxm.icartoon.im.model.ServerParameter;
+import com.wbxm.icartoon.im.util.Constant;
 
 /**
  * 聊天工具使用入口
@@ -23,7 +21,7 @@ import java.util.Observable;
  * @author ycb
  * @date 2018/8/23
  */
-public final class MessageClient extends Observable implements IConnectListener, IMessageReceiver,
+public final class MessageClient implements IConnectListener, IMessageReceiver,
         IReconnectListener {
 
     private ClientWrapper client;

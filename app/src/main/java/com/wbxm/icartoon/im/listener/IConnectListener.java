@@ -1,6 +1,6 @@
 package com.wbxm.icartoon.im.listener;
 
-import android.support.annotation.AnyThread;
+import android.support.annotation.WorkerThread;
 
 /**
  * 监听服务器的连接状态
@@ -12,12 +12,12 @@ public interface IConnectListener {
     /**
      * Callback method for when the client connects to the server.
      */
-    @AnyThread
+    @WorkerThread
     void connected();
 
     /**
      * Callback method for when the client disconnects from the server.
      */
-    @AnyThread
+    @WorkerThread
     void disconnected();
 }

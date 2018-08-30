@@ -11,6 +11,12 @@ import java.io.IOException;
  */
 public interface IWriteListener {
 
+    /**
+     * 向服务器写数据包
+     * @param packet 包装消息生成的数据包
+     * @return true上传成功；false上传失败/连接中断
+     * @throws IOException
+     */
     boolean write(Packet packet) throws IOException;
 
 }

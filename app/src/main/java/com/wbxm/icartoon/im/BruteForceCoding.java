@@ -103,28 +103,4 @@ public class BruteForceCoding {
 		System.arraycopy(a, beginPos, result, 0, length);
 		return result;
 	}
-
-	public static void main(String[] args) {
-		byte[] message = new byte[BSIZE + SSIZE + ISIZE + LSIZE];
-		// Encode the fields in the target byte array
-		int offset = encodeIntBigEndian(message, byteVal, 0, BSIZE);
-		offset = encodeIntBigEndian(message, shortVal, offset, SSIZE);
-		offset = encodeIntBigEndian(message, intVal, offset, ISIZE);
-		encodeIntBigEndian(message, longVal, offset, LSIZE);
-		System.out.println("Encoded message: " + byteArrayToDecimalString(message));
-
-		// Decode several fields
-		long value = decodeIntBigEndian(message, BSIZE, SSIZE);
-		System.out.println("Decoded short = " + value);
-		value = decodeIntBigEndian(message, BSIZE + SSIZE + ISIZE, LSIZE);
-		System.out.println("Decoded long = " + value);
-
-		// Demonstrate dangers of conversion
-		offset = 4;
-		value = decodeIntBigEndian(message, offset, BSIZE);
-		System.out.println("Decoded value (offset " + offset + ", size " + BSIZE + ") = " + value);
-		byte bVal = (byte) decodeIntBigEndian(message, offset, BSIZE);
-		System.out.println("Same value as byte = " + bVal);
-	}
-
 }

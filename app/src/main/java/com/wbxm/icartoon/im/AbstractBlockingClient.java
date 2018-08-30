@@ -2,9 +2,9 @@ package com.wbxm.icartoon.im;
 
 import android.support.annotation.Nullable;
 
+import com.wbxm.icartoon.im.model.OperationCode;
 import com.wbxm.icartoon.im.model.Packet;
 import com.wbxm.icartoon.im.util.Constant;
-import com.wbxm.icartoon.im.model.OperationCode;
 import com.wbxm.icartoon.im.util.SequenceIdRecorder;
 
 import java.io.DataInputStream;

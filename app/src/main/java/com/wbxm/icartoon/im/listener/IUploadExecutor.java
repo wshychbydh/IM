@@ -9,5 +9,10 @@ import com.wbxm.icartoon.im.model.Message;
  */
 public interface IUploadExecutor {
 
+    /**
+     * 上传文件
+     * @param message  文件消息体
+     * @param listener
+     */
     void uploadFile(Message message, IUploadListener listener);
 }

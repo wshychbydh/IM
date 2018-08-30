@@ -2,12 +2,12 @@ package com.wbxm.icartoon.im;
 
 import android.os.Looper;
 
-import com.wbxm.icartoon.im.model.Message;
-import com.wbxm.icartoon.im.model.RejectionCode;
 import com.wbxm.icartoon.im.listener.ISendListener;
 import com.wbxm.icartoon.im.listener.IUploadExecutor;
 import com.wbxm.icartoon.im.listener.IUploadListener;
 import com.wbxm.icartoon.im.listener.RejectionDef;
+import com.wbxm.icartoon.im.model.Message;
+import com.wbxm.icartoon.im.model.RejectionCode;
 import com.wbxm.icartoon.im.util.Constant;
 import com.wbxm.icartoon.im.util.ThreadUtil;
 
@@ -21,13 +21,13 @@ import java.util.Set;
  * @author ycb
  * @date 2018/8/24
  */
-public class FileWriter {
+public class FileWriter implements IUploadListener {
 
     private Set<Message> fileSet = Collections.synchronizedSet(new HashSet<Message>());
 
-    private ISendListener sendListener;  //发送文件回调
-    private IUploadExecutor uploadExecutor; // 上传文件执行回调
-    private IUploadListener uploadListener;
+    private ISendListener sendListener;  //发送文件监听器
+    private IUploadExecutor uploadExecutor; // 上传文件执行器
+    private IUploadListener uploadListener; //上传文件监听器
 
     public FileWriter(IUploadListener uploadListener) {
         this.uploadListener = uploadListener;
@@ -49,7 +49,7 @@ public class FileWriter {
         }
         boolean result = fileSet.add(message);
         if (result && uploadExecutor != null) {
-            uploadExecutor.uploadFile(message, uploadListener);
+            uploadExecutor.uploadFile(message, this);
         }
     }
 
@@ -69,7 +69,19 @@ public class FileWriter {
         }
     }
 
-    public void onUploadSucceed(Message message) {
+    @Override
+    public void onUploadSucceed(Message message, String url) {
         fileSet.remove(message);
+        if (uploadListener != null) {
+            uploadListener.onUploadSucceed(message, url);
+        }
+    }
+
+    @Override
+    public void onUploadFailed(Message message, Throwable throwable) {
+        fileSet.remove(message);
+        if (uploadListener != null) {
+            uploadListener.onUploadFailed(message, throwable);
+        }
     }
 }

@@ -3,8 +3,8 @@ package com.wbxm.icartoon.im.util;
 import com.alibaba.fastjson.JSON;
 import com.wbxm.icartoon.im.model.Message;
 import com.wbxm.icartoon.im.model.MessageStatus;
-import com.wbxm.icartoon.im.model.Packet;
 import com.wbxm.icartoon.im.model.OperationCode;
+import com.wbxm.icartoon.im.model.Packet;
 
 /**
  * 消息生成和处理类
@@ -45,7 +45,7 @@ public class MessageFactory {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return 0;
+        return -1;
     }
 
     /**
