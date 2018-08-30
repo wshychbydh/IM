@@ -59,6 +59,10 @@ public class Message implements Comparable<Message> {
         return syncStatus == MessageStatus.UN_SYNC;
     }
 
+    public boolean isNeedSync() {
+        return syncStatus != MessageStatus.SYNCED;
+    }
+
     public int getId() {
         return id;
     }

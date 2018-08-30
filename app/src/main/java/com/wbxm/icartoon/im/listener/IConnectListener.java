@@ -13,7 +13,7 @@ public interface IConnectListener {
      * Callback method for when the client connects to the server.
      */
     @WorkerThread
-    void connected();
+    void connected(boolean connected);
 
     /**
      * Callback method for when the client disconnects from the server.

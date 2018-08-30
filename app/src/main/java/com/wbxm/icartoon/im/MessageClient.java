@@ -29,13 +29,17 @@ public final class MessageClient implements IConnectListener, IMessageReceiver,
     private MessageReader reader = new MessageReader();
     private MessageWriter writer = new MessageWriter();
 
-    private volatile boolean isConnected = false;  //记录当前连接状态
-
     private ServerParameter parameter = new ServerParameter();
 
     private IConnectListener connectListener;
 
     private MessageClient() {
+    }
+
+    public void restart() {
+        if (client != null && !client.isRunning()) {
+            start();
+        }
     }
 
     /**
@@ -51,27 +55,25 @@ public final class MessageClient implements IConnectListener, IMessageReceiver,
      * 终止连接
      */
     public void stop() {
-        isConnected = false;
         if (client != null) {
             client.stop();
         }
     }
 
     @Override
-    public void connected() {
-        isConnected = true;
-
-        reader.start();
-        writer.start();
+    public void connected(boolean connected) {
+        if (connected) {
+            reader.start();
+            writer.start();
+        }
 
         if (connectListener != null) {
-            connectListener.connected();
+            connectListener.connected(connected);
         }
     }
 
     @Override
     public void disconnected() {
-        isConnected = false;
         reader.stop();
         writer.stop();
         if (connectListener != null) {
@@ -107,9 +109,7 @@ public final class MessageClient implements IConnectListener, IMessageReceiver,
      * @param message
      */
     public void sendMessage(Message message) {
-        if (isConnected) {
-            writer.pushMessage(message);
-        }
+        writer.pushMessage(message);
     }
 
     /**

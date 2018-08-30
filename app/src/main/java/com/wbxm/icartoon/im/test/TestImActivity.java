@@ -97,14 +97,25 @@ public class TestImActivity extends AppCompatActivity implements ISendListener<M
 
     @Override
     @WorkerThread
-    public void connected() {
-        ThreadUtil.runOnUi(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(TestImActivity.this, "connect succeed", Toast.LENGTH_SHORT).show();
-            }
-        });
+    public void connected(boolean connected) {
+        if (connected) {
+            ThreadUtil.runOnUi(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(TestImActivity.this, "connect succeed", Toast.LENGTH_SHORT).show();
+                }
+            });
 
+            //连接成功后自动上传未同步的消息
+            for (Message message : data) {
+                if (message.isNeedSync()) {
+                    resend(message);
+                }
+            }
+        } else {
+            //TODO 重连
+            client.restart();
+        }
     }
 
     @Override

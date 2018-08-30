@@ -108,6 +108,8 @@ public class MessageWriter implements IUploadListener, IMessageReceiver {
                 //如果是文件，则需要先将文件上传到服务器后得到url，将url写入消息的content中，再上传。
                 fileWriter.sendMessage(message);
             }
+        } else {
+            onSendMessageRejected(message, RejectionCode.SEND_ERROR, null);
         }
     }
 
@@ -118,23 +120,27 @@ public class MessageWriter implements IUploadListener, IMessageReceiver {
      * @param message
      */
     private void syncMessage(final Message message) {
-        if (isConnecting && writeListener != null) {
-            ThreadUtil.asyncTask(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Packet packet = MessageFactory.encode(message);
-                        if (writeListener.write(packet)) {
-                            sendMap.put(packet.getSeqId(), message);
-                        } else {
-                            onSendMessageRejected(message, RejectionCode.SEND_ERROR, null);
+        if (isConnecting) {
+            if (writeListener != null) {
+                ThreadUtil.asyncTask(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Packet packet = MessageFactory.encode(message);
+                            if (writeListener.write(packet)) {
+                                sendMap.put(packet.getSeqId(), message);
+                            } else {
+                                onSendMessageRejected(message, RejectionCode.SEND_ERROR, null);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            onSendMessageRejected(message, RejectionCode.SEND_ERROR, e.getMessage());
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        onSendMessageRejected(message, RejectionCode.SEND_ERROR, e.getMessage());
                     }
-                }
-            });
+                });
+            }
+        } else {
+            onSendMessageRejected(message, RejectionCode.SEND_ERROR, null);
         }
     }
 

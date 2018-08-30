@@ -1,5 +1,7 @@
 package com.wbxm.icartoon.im;
 
+import android.os.SystemClock;
+
 import com.wbxm.icartoon.im.listener.IAuthListener;
 import com.wbxm.icartoon.im.listener.IConnectListener;
 import com.wbxm.icartoon.im.listener.IHeartListener;
@@ -8,6 +10,7 @@ import com.wbxm.icartoon.im.listener.IReconnectListener;
 import com.wbxm.icartoon.im.listener.IWriteListener;
 import com.wbxm.icartoon.im.model.Packet;
 import com.wbxm.icartoon.im.model.ServerParameter;
+import com.wbxm.icartoon.im.util.Constant;
 
 import java.io.IOException;
 import java.util.Observable;
@@ -24,7 +27,6 @@ public final class ClientWrapper extends AbstractBlockingClient implements IWrit
     private IConnectListener connectListener;  //连接状态监听
     private IMessageReceiver messageListener;  //消息接收者
     private IReconnectListener reconnectListener;  //重连接监听
-    private Listener listener = new Listener();
 
     public ClientWrapper(ServerParameter parameter) {
         super(parameter.getHost(), parameter.getPort(), parameter.getToken(), parameter.getBufferSize());
@@ -37,18 +39,20 @@ public final class ClientWrapper extends AbstractBlockingClient implements IWrit
     private class Listener implements Observer {
         @Override
         public void update(Observable o, Object arg) {
-            deleteObserver(listener);
-            stop();
+
+            SystemClock.sleep(Constant.AUTO_CONNECT_DELAY);
+
             ClientWrapper pc = new ClientWrapper(serverParameter);
-            listener = this;
             pc.setReconnectListener(reconnectListener);
             pc.setHeartListener(heartListener);
             pc.setConnectListener(connectListener);
             pc.setMessageListener(messageListener);
             pc.setAuthListener(authListener);
-            addObserver(listener);
+            pc.addObserver(this);
             new Thread(pc).start();
-            reconnectListener.onReconnected(pc);
+            if (reconnectListener != null) {
+                reconnectListener.onReconnected(pc);
+            }
         }
     }
 
@@ -56,7 +60,7 @@ public final class ClientWrapper extends AbstractBlockingClient implements IWrit
      * 建立连接
      */
     public void start() {
-        addObserver(listener);
+        addObserver(new Listener());
         new Thread(this).start();
     }
 
@@ -118,7 +122,7 @@ public final class ClientWrapper extends AbstractBlockingClient implements IWrit
     @Override
     protected void connected(boolean alreadyConnected) {
         if (connectListener != null) {
-            connectListener.connected();
+            connectListener.connected(alreadyConnected);
         }
     }
 
